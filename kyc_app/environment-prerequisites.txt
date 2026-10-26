@@ -1,0 +1,12 @@
+# Référence documentaire — À NE PAS passer à pip.
+# Ces composants doivent être fournis par l'environnement de calcul Domino GPU déjà utilisé
+# par le notebook (image/Dockerfile de l'environnement), sur un tier matériel H100.
+#
+#   Python             >= 3.10
+#   torch              >= 2.0   compilé CUDA, BF16 supporté (H100)
+#   transformers       >= 4.57  AutoProcessor, AutoModelForImageTextToText, FineGrainedFP8Config(dequantize=True)
+#   accelerate         >= 0.30  device_map="auto"
+#   Pilotes NVIDIA + nvidia-smi
+#   Modèle local       /domino/edv/modelhub/ModelHub-model-huggingface-Qwen/Qwen3.8-27B-FP8/main (EDV monté)
+#
+# Contrôle : bash scripts/validate_environment.sh

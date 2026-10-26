@@ -1,0 +1,3 @@
+# Outils de test (workspace uniquement, jamais requis par l'App).
+-r requirements.txt
+pytest>=7

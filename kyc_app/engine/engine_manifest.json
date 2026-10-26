@@ -1,0 +1,513 @@
+{
+  "generated_at": "2026-10-25T19:55:06.594632+00:00",
+  "build_tool_version": "1.0.0",
+  "notebook_file": "kyc_qwen38_production_kyc_pipeline_name_similarity_v2.ipynb",
+  "notebook_sha256": "4f9c0efe9c1acb1dc621e03b8b92b45a5cf030af189dd2c2aae956c5d0ac1ff0",
+  "core_sha256": "1ca0b4b4c6d1dcea69ba1bf4614ad44a21e75ee4815c2239abec10c6181278df",
+  "code_cell_count": 47,
+  "stage_functions": [
+    "_nb_stage_inventory",
+    "_nb_stage_pass_a",
+    "_nb_stage_pass_b",
+    "_nb_stage_matching_and_reports"
+  ],
+  "per_run_state_names": [
+    "SESSION_ID",
+    "SESSION_START",
+    "ERRORS",
+    "ATTEMPTS",
+    "PERFORMANCE",
+    "REFERENCE_REPAIRS",
+    "CUSTOMER_SNAPSHOTS",
+    "CUSTOMER_RESULTS",
+    "RAW_CACHE_INDEX",
+    "RUN_DATE",
+    "DOCUMENT_WRITES",
+    "RUNTIME_STATE",
+    "RAW_MODEL_INFO",
+    "MODEL_REPOSITORY_SIGNATURE",
+    "RAW_RUN_SUMMARY",
+    "STRUCTURE_RUN_SUMMARY",
+    "MATCH_RUN_SUMMARY"
+  ],
+  "config_defaults": {
+    "PIPELINE_VERSION": "KYC_QWEN38_PRODUCTION_1",
+    "RAW_OCR_VERSION": "Q38_RAW_PRODUCTION_1",
+    "STRUCTURED_EXTRACTION_VERSION": "Q38_STRUCTURE_PRODUCTION_1",
+    "SCHEMA_VERSION": "KYC_Q38_EVIDENCE_1",
+    "MATCHING_VERSION": "KYC_MATCHING_HANDWRITTEN_NAME_SIM_75_V1",
+    "HANDWRITTEN_NAME_SIMILARITY_THRESHOLD": 75.0,
+    "CONFIDENCE_VERSION": "OPERATIONAL_SCORE_3",
+    "DOCUMENT_JSON_SCHEMA_VERSION": "Q38-PROD-1",
+    "CUSTOMER_JSON_SCHEMA_VERSION": "Q38-PROD-1",
+    "MODEL_PATH": "/domino/edv/modelhub/ModelHub-model-huggingface-Qwen/Qwen3.8-27B-FP8/main",
+    "RUN_MODE": "MATCH_ONLY",
+    "TARGET_DOCUMENTS": [
+      "JUSTIFICATIF IDENTITE.PDF",
+      "JUSTIFICATIF DOMICILE.PDF",
+      "CONVENTION COMPTE.PDF",
+      "FATCA.PDF",
+      "CARTON SIGNATUTE.PDF"
+    ],
+    "DOCUMENT_ALIASES": {
+      "CARTON SIGNATURE.PDF": "CARTON SIGNATUTE.PDF"
+    },
+    "RECOGNIZE_DUPLICATE_SUFFIX": true,
+    "MAX_ZIP_MEMBERS": 200000,
+    "MAX_PDF_BYTES": null,
+    "MAX_COMPRESSION_RATIO": 2000.0,
+    "MAX_EXTRACT_BYTES": null,
+    "DUPLICATE_POLICY": "family_and_size"
+  },
+  "transformations": [
+    {
+      "cell": "e7602a7f",
+      "change": "CFG = StructuredConfig() → StructuredConfig(**_APP_ENGINE_OVERRIDES)"
+    },
+    {
+      "cell": "fedf7d9f",
+      "change": "IPython.display.display : repli print si IPython absent"
+    },
+    {
+      "cell": "a98d9d6a",
+      "change": "instructions finales → _nb_stage_inventory()"
+    },
+    {
+      "cell": "4869d7f3",
+      "change": "cellule entière → _nb_stage_pass_a()"
+    },
+    {
+      "cell": "1687acc2",
+      "change": "cellule entière → _nb_stage_pass_b()"
+    },
+    {
+      "cell": "5eb70c68",
+      "change": "cellule entière → _nb_stage_matching_and_reports()"
+    }
+  ],
+  "cells": [
+    {
+      "index": 1,
+      "id": "e7602a7f",
+      "tag": "config",
+      "action": "config",
+      "title": "0 — Configuration centrale",
+      "source_sha256": "e81e2e2f7901f310a9f6cec44de91f4d97c130d887a8c6af5a74767855b9f1fb",
+      "source_lines": 156
+    },
+    {
+      "index": 2,
+      "id": "927d0e7c",
+      "tag": "packages",
+      "action": "keep",
+      "title": "1 — Environnement et versions",
+      "source_sha256": "128bdd6240f4f44343f180c45f9ae5ed0f5b9654f11cd39ea886e739acca9a0c",
+      "source_lines": 22
+    },
+    {
+      "index": 3,
+      "id": "fedf7d9f",
+      "tag": "imports",
+      "action": "imports",
+      "title": "2 — Imports",
+      "source_sha256": "419663317a82cea3a59265d889a4cd779710fef46cb94085cd7c366077645b50",
+      "source_lines": 45
+    },
+    {
+      "index": 4,
+      "id": "0ebb79df",
+      "tag": "business_rules",
+      "action": "keep",
+      "title": "3 — Règles métier et schémas",
+      "source_sha256": "88a3e97ab5d0f303bdbe0f48e28cc45ab253eb19a9941e379b18c9aaf2bd2d1e",
+      "source_lines": 111
+    },
+    {
+      "index": 5,
+      "id": "fde43ba6",
+      "tag": "paths",
+      "action": "keep",
+      "title": "4 — Répertoires et journal",
+      "source_sha256": "08eda57fbd455cf4f90160b1f50731607ec58fd60e1a4ea396a6572c7e42feeb",
+      "source_lines": 29
+    },
+    {
+      "index": 6,
+      "id": "329f3844",
+      "tag": "io_helpers",
+      "action": "keep",
+      "title": "5 — Sérialisation et SHA-256",
+      "source_sha256": "47a0e5b767c2fc32bf20fb2cf123ee6b17591ed6f7ef882907904e9540d2eb73",
+      "source_lines": 79
+    },
+    {
+      "index": 7,
+      "id": "ba81ff85",
+      "tag": "normalization",
+      "action": "keep",
+      "title": "6 — Normalisations de comparaison",
+      "source_sha256": "f6f6a23884633c1cf6b654fcb684c62538258375e171b167f600740cc3c5535e",
+      "source_lines": 125
+    },
+    {
+      "index": 8,
+      "id": "6f9e2a7c",
+      "tag": "runtime_support",
+      "action": "keep",
+      "title": "7 — Identité des artefacts et population",
+      "source_sha256": "ddb2475f6c9af02587d3e20080a2a89e96662e3db283ea641e05948a844de2ea",
+      "source_lines": 108
+    },
+    {
+      "index": 9,
+      "id": "d6ddd28a",
+      "tag": "quality_engine",
+      "action": "keep",
+      "title": "8 — Qualité et revue des preuves",
+      "source_sha256": "5d7e70f5d7f3e68f3f04dc63b31f365b9aec8f6ea0a17b0ed1f2aa52c36c403b",
+      "source_lines": 231
+    },
+    {
+      "index": 10,
+      "id": "d6113d1f",
+      "tag": "zip_helpers",
+      "action": "keep",
+      "title": "9 — Extraction ZIP sûre",
+      "source_sha256": "06e89ee010c230f7d2b985855e05f308ec08eef7afd9a10870c4b5788732c0c2",
+      "source_lines": 163
+    },
+    {
+      "index": 11,
+      "id": "df68eafe",
+      "tag": "inventory_helpers",
+      "action": "keep",
+      "title": "10 — Familles et doublons de taille",
+      "source_sha256": "1a669cd54e47d562dd473d30a22d40749e9749371acc42bffac6a3c42a78c56a",
+      "source_lines": 78
+    },
+    {
+      "index": 12,
+      "id": "a98d9d6a",
+      "tag": "discovery",
+      "action": "split:_nb_stage_inventory",
+      "title": "11 — Inventaire de toute la population",
+      "source_sha256": "34981190537c9cfb9913ef6df3c8815afdb7704489ac6f27f43caaca62762103",
+      "source_lines": 94
+    },
+    {
+      "index": 13,
+      "id": "6caaf980",
+      "tag": "image_helpers",
+      "action": "keep",
+      "title": "12 — Rendu et préparation des images",
+      "source_sha256": "cbc883a3aee03037a31331bec28163f883e6dc2b036703436ec896091f6a6875",
+      "source_lines": 142
+    },
+    {
+      "index": 14,
+      "id": "c84ece7a",
+      "tag": "raw_prompt",
+      "action": "keep",
+      "title": "13 — Prompt RAW éprouvé",
+      "source_sha256": "e1a1598e00f9015879c2b36cfdbaf61543f445fb1ab31afb7cdc75ea4d8fe519",
+      "source_lines": 18
+    },
+    {
+      "index": 15,
+      "id": "98fea477",
+      "tag": "template_helpers",
+      "action": "keep",
+      "title": "14 — Template et thinking",
+      "source_sha256": "2245cdb99a29eb2dba68fc6bc381cb3f5b3a28f4f4b37729dbe5350d5322590a",
+      "source_lines": 46
+    },
+    {
+      "index": 16,
+      "id": "e03d63da",
+      "tag": "model_diagnostics",
+      "action": "keep",
+      "title": "15 — Placement GPU et mémoire",
+      "source_sha256": "6359e2e646b96ff783255215e411f513d30268b354fdbf8e080cea648daf18be",
+      "source_lines": 69
+    },
+    {
+      "index": 17,
+      "id": "e99bd894",
+      "tag": "model_loading",
+      "action": "keep",
+      "title": "16 — Chargement Qwen3.8 local unique",
+      "source_sha256": "ebd678ebece70eef645a495559c1450b77219e8135f3ee7d616a0d0583cd7049",
+      "source_lines": 117
+    },
+    {
+      "index": 18,
+      "id": "a974ba61",
+      "tag": "raw_validation",
+      "action": "keep",
+      "title": "17 — Dégénérescence et garde de temps",
+      "source_sha256": "bbf3a464f750d25a4549e35e5748ddc3c649cd94968696756b1e4eed02e380d0",
+      "source_lines": 111
+    },
+    {
+      "index": 19,
+      "id": "2db39b5e",
+      "tag": "qwen_inference",
+      "action": "keep",
+      "title": "18 — Inférence RAW batch 1",
+      "source_sha256": "5e0ca586746ba8e98ab7005ae7166a1a965722daa8ed3dd65cebe2bcbaeadc53",
+      "source_lines": 234
+    },
+    {
+      "index": 20,
+      "id": "81a72a5f",
+      "tag": "raw_store",
+      "action": "keep",
+      "title": "19 — Checkpoints RAW par page",
+      "source_sha256": "506e89aa3cc2aefba347c855f1b7ab3c4ad8ce29bd457b8b8e9becb6cd48c005",
+      "source_lines": 184
+    },
+    {
+      "index": 21,
+      "id": "8ded3d7f",
+      "tag": "raw_runner",
+      "action": "keep",
+      "title": "20 — Passe RAW de tous les clients",
+      "source_sha256": "5f5ec8e3cb552f17b2e0267ec480663d39bce3d669eda7aff3058201863009cf",
+      "source_lines": 141
+    },
+    {
+      "index": 22,
+      "id": "9612c204",
+      "tag": "raw_benchmark",
+      "action": "keep",
+      "title": "21 — Benchmark froid et chaud",
+      "source_sha256": "1589d7f45b57bf05a6c1824ea4019c06cc35692337e273af3a353df1015e597c",
+      "source_lines": 39
+    },
+    {
+      "index": 23,
+      "id": "4869d7f3",
+      "tag": "exécution_pass_a",
+      "action": "wrap:_nb_stage_pass_a",
+      "title": "22 — EXÉCUTION PASS A",
+      "source_sha256": "b2977998f2ebb387776ff31fc5aab703a13b8630f1679be86878a43097458c6a",
+      "source_lines": 6
+    },
+    {
+      "index": 24,
+      "id": "38a4e122",
+      "tag": "evidence_contract",
+      "action": "keep",
+      "title": "23 — Schéma et prompts structurés",
+      "source_sha256": "b4fe1fce9131092871299280d822e0b055628fc2a5f9b40733858cedf4291d90",
+      "source_lines": 282
+    },
+    {
+      "index": 25,
+      "id": "be44a34b",
+      "tag": "structured_text_rules",
+      "action": "keep",
+      "title": "24 — Extraction ancrée sur le RAW",
+      "source_sha256": "5c69a36876f9f46d5c8d859447222a29da68370efa620c3295400cc6d861598b",
+      "source_lines": 138
+    },
+    {
+      "index": 26,
+      "id": "5172d273",
+      "tag": "document_detection",
+      "action": "keep",
+      "title": "25 — Détection et précontrôles métier",
+      "source_sha256": "b524fc462514e1d603e9c021480261a392a69c5d8caed0915092729a12b0767c",
+      "source_lines": 144
+    },
+    {
+      "index": 27,
+      "id": "07e82e54",
+      "tag": "structured_adapter",
+      "action": "keep",
+      "title": "26 — Parsing JSON tolérant par champ",
+      "source_sha256": "374ad87be8fb9ecebc40638d332a40892cbda81d7b5e745106f09b83e9404463",
+      "source_lines": 137
+    },
+    {
+      "index": 28,
+      "id": "6b41cad4",
+      "tag": "model_confidence",
+      "action": "keep",
+      "title": "27 — Probabilités de tokens et alignement des champs",
+      "source_sha256": "8a18701b76b4702dcd1101f19614b07ae19de99ad20cd09ec29e69a37a1ed592",
+      "source_lines": 108
+    },
+    {
+      "index": 29,
+      "id": "2603890e",
+      "tag": "text_inference",
+      "action": "keep",
+      "title": "28 — Qwen extraction texte",
+      "source_sha256": "94e9ac7b6719f490bc30dd9d2853c35e9b737676eef5823cc15b3603dfd395c4",
+      "source_lines": 44
+    },
+    {
+      "index": 30,
+      "id": "d4ccbde5",
+      "tag": "structured_vision_inference",
+      "action": "keep",
+      "title": "29 — Qwen ciblé avec image",
+      "source_sha256": "7efefb83fda3bb3b9142bc6962793e625cca32d82e26b4e54388c72b12a0b389",
+      "source_lines": 114
+    },
+    {
+      "index": 31,
+      "id": "754eccd0",
+      "tag": "structured_image_attempt",
+      "action": "keep",
+      "title": "30 — Repli visuel et HD",
+      "source_sha256": "ecdccb492fdb0c73ba3014eab897006999ba5e8b7f01a477f662ac10471526ca",
+      "source_lines": 61
+    },
+    {
+      "index": 32,
+      "id": "306d7bd7",
+      "tag": "structured_cascade",
+      "action": "keep",
+      "title": "31 — Ordre des extracteurs",
+      "source_sha256": "162752bd4ea7ccbe80716bf87c84fe742c6c2c7a61171d75b8da4d800b04dd80",
+      "source_lines": 104
+    },
+    {
+      "index": 33,
+      "id": "5df58302",
+      "tag": "matching",
+      "action": "keep",
+      "title": "32 — Contrôles communs des noms",
+      "source_sha256": "87eaa46f373ef5fba52b04bbcbc1c8681cf64c9abaef83e53b1d674cdc9e7a93",
+      "source_lines": 181
+    },
+    {
+      "index": 34,
+      "id": "c1727ff0",
+      "tag": "document_validators",
+      "action": "keep",
+      "title": "33 — Validation métier et dates",
+      "source_sha256": "e2689e98b4d4bc61874bf864585e577edf6f6a89eb955910637e133584bb1250",
+      "source_lines": 176
+    },
+    {
+      "index": 35,
+      "id": "11135bf2",
+      "tag": "aggregation",
+      "action": "keep",
+      "title": "34 — Agrégation des preuves",
+      "source_sha256": "32217c017e57ecbecca6a63198090bfe8d3bcbd35e411234f816ad0cafb3c3ea",
+      "source_lines": 129
+    },
+    {
+      "index": 36,
+      "id": "6e8122b7",
+      "tag": "document_json",
+      "action": "keep",
+      "title": "35 — JSON de chaque instance physique",
+      "source_sha256": "f00c3760a96a978770e79982b72b5b20a131c25f56797ca21e0a5ece60810d3e",
+      "source_lines": 152
+    },
+    {
+      "index": 37,
+      "id": "289c636d",
+      "tag": "structured_runner",
+      "action": "keep",
+      "title": "36 — Passe structurée indépendante",
+      "source_sha256": "122f479b88450e0878577e3f90bd912df76e9b77928271387e0ac52dbddcc4d9",
+      "source_lines": 112
+    },
+    {
+      "index": 38,
+      "id": "1687acc2",
+      "tag": "exécution_pass_b",
+      "action": "wrap:_nb_stage_pass_b",
+      "title": "37 — EXÉCUTION PASS B",
+      "source_sha256": "3b38689a6af7607262f3db8c614238bdbacc75d4aaef452a455805e56b23205f",
+      "source_lines": 5
+    },
+    {
+      "index": 39,
+      "id": "10121a1e",
+      "tag": "reference_helpers",
+      "action": "keep",
+      "title": "38 — CSV UTF-8 et index",
+      "source_sha256": "252f5b16a0ffca16dc1f86db2f7bc0468e3991a772915e97358e301d7a2435c6",
+      "source_lines": 84
+    },
+    {
+      "index": 40,
+      "id": "similarity-v2-code",
+      "tag": "name_similarity",
+      "action": "keep",
+      "title": "38 bis — Similarité de transcription des noms FATCA / carton",
+      "source_sha256": "15cd0d8b2dba82a400250ca424999e7de70e0e6d747bacd994296bc5e41dda44",
+      "source_lines": 169
+    },
+    {
+      "index": 41,
+      "id": "ecca80c3",
+      "tag": "reference_consistency",
+      "action": "keep",
+      "title": "38 bis — Similarité de transcription des noms FATCA / carton",
+      "source_sha256": "b81abced64e90c8e4d8ed2f4bb5cec5971b7dc61e51661a469739566798a0cfa",
+      "source_lines": 146
+    },
+    {
+      "index": 42,
+      "id": "similarity-tests-code",
+      "tag": "name_similarity_tests",
+      "action": "keep",
+      "title": "39 bis — Tests unitaires et régressions du matching",
+      "source_sha256": "e77f7f146e6d980ef3cb0b7846637a37162df4e2b0c94ab4320ce7d555f6b904",
+      "source_lines": 195
+    },
+    {
+      "index": 43,
+      "id": "74824fff",
+      "tag": "customer_runner",
+      "action": "keep",
+      "title": "39 bis — Tests unitaires et régressions du matching",
+      "source_sha256": "87b7084a732be211145d27886527f770633f95968f092ab15c3828f2d638d988",
+      "source_lines": 97
+    },
+    {
+      "index": 44,
+      "id": "ba3fdbd3",
+      "tag": "excel_helpers",
+      "action": "keep",
+      "title": "41 — Rapport Excel lisible",
+      "source_sha256": "57ef954f1c75d1d811d228f37c0819c3849a0a4851e8e2cac44d58da6fe59f97",
+      "source_lines": 43
+    },
+    {
+      "index": 45,
+      "id": "similarity-report-code",
+      "tag": "name_similarity_reporting",
+      "action": "keep",
+      "title": "41 bis — Traçabilité de la similarité dans les rapports",
+      "source_sha256": "4f22c347f4b4c1acab256584c285bbeaa603051f4d587078d524ddd693467c23",
+      "source_lines": 108
+    },
+    {
+      "index": 46,
+      "id": "fc556498",
+      "tag": "reporting",
+      "action": "keep",
+      "title": "41 bis — Traçabilité de la similarité dans les rapports",
+      "source_sha256": "3a5977dbab8b0085b224dc236de696f76710e803bf226e72c7a2e08a214a3f10",
+      "source_lines": 205
+    },
+    {
+      "index": 47,
+      "id": "5eb70c68",
+      "tag": "exécution_matching_et_rapports",
+      "action": "wrap:_nb_stage_matching_and_reports",
+      "title": "43 — EXÉCUTION matching et rapports",
+      "source_sha256": "030a50e1baf85239c1c3185671350bfe961f90beb105413c5a12966cb2c075a9",
+      "source_lines": 10
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------------------------------------
+# Dépendances LÉGÈRES de l'application (pip install -r requirements.txt).
+# Bornes minimales uniquement : un paquet déjà présent et suffisant n'est PAS mis à jour.
+# ---------------------------------------------------------------------------------------------
+streamlit>=1.37,<2          # interface ; >=1.37 pour st.fragment (progression auto-rafraîchie)
+
+# Déjà requises par le notebook (cellule « packages ») et normalement fournies par l'environnement
+# Domino GPU ; listées pour un environnement neuf. Minimums identiques à ceux du notebook.
+numpy>=1.23
+pandas>=1.5
+Pillow>=9.0
+PyMuPDF>=1.23
+openpyxl>=3.1
+packaging>=21.0
+psutil>=5.9
+
+# ---------------------------------------------------------------------------------------------
+# NE PAS installer via ce fichier — prérequis de l'environnement de calcul Domino GPU
+# (voir environment-prerequisites.txt) : torch (CUDA), transformers>=4.57, accelerate>=0.30,
+# pilotes NVIDIA / CUDA. Les réinstaller par pip risque de casser la pile CUDA validée.
+# ---------------------------------------------------------------------------------------------
